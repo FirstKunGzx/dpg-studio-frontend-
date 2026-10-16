@@ -76,7 +76,7 @@ export class AppComponent implements OnInit {
   }
 
   fetchProjects() {
-    this.http.get<any[]>('https://dpg-studio-backend.onrender.com').subscribe((data) => {
+    this.http.get<any[]>('https://dpg-studio-backend.onrender.com/project').subscribe((data) => {
       this.projects = [...data]; 
       this.cdr.detectChanges();
     });

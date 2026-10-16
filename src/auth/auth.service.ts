@@ -7,7 +7,7 @@ import { tap } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:3000/auth'; // URL ของ Backend
+  private apiUrl = 'https://dpg-studio-backend.onrender.com/auth'; // 🌟 เปลี่ยนเป็น URL ของ Render ออนไลน์
 
   // เก็บสถานะผู้ใช้ปัจจุบัน
   public currentUser = new BehaviorSubject<any>(null);
