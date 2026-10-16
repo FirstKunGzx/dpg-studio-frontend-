@@ -76,7 +76,7 @@ export class AppComponent implements OnInit {
   }
 
   fetchProjects() {
-    this.http.get<any[]>('http://localhost:3000/project').subscribe((data) => {
+    this.http.get<any[]>('https://dpg-studio-backend.onrender.com').subscribe((data) => {
       this.projects = [...data]; 
       this.cdr.detectChanges();
     });
@@ -334,12 +334,12 @@ export class AppComponent implements OnInit {
     };
 
     if (this.isEditMode && this.editingId) {
-      this.http.patch(`http://localhost:3000/project/${this.editingId}`, payload).subscribe({
+      this.http.patch(`https://dpg-studio-backend.onrender.com/project/${this.editingId}`, payload).subscribe({
         next: () => { this.fetchProjects(); this.cancelForm(); },
         error: (err) => { console.error(err); alert('❌ แก้ไขข้อมูลไม่ได้!'); }
       });
     } else {
-      this.http.post('http://localhost:3000/project', payload).subscribe({
+      this.http.post('https://dpg-studio-backend.onrender.com/project', payload).subscribe({
         next: (res: any) => { 
           this.myOwnedProjects.push(res.id);
           localStorage.setItem('my_owned_projects', JSON.stringify(this.myOwnedProjects));
@@ -354,7 +354,7 @@ export class AppComponent implements OnInit {
   deleteProject(id: number, event: Event) {
     event.stopPropagation();
     if (confirm('คุณแน่ใจหรือไม่ว่าต้องการลบผลงานชิ้นนี้?')) {
-      this.http.delete(`http://localhost:3000/project/${id}`).subscribe({
+      this.http.delete(`https://dpg-studio-backend.onrender.com/project/${id}`).subscribe({
         next: () => this.fetchProjects(),
         error: () => alert('เกิดข้อผิดพลาดในการลบข้อมูลครับ')
       });
@@ -449,7 +449,7 @@ export class AppComponent implements OnInit {
   }
 
   fetchUsers() {
-    this.http.get<any[]>('http://localhost:3000/auth/users').subscribe({
+    this.http.get<any[]>('https://dpg-studio-backend.onrender.com/auth/users').subscribe({
       next: (data) => {
         this.usersList = data;
         this.cdr.detectChanges();
@@ -460,7 +460,7 @@ export class AppComponent implements OnInit {
 
   deleteUserAcc(id: number, username: string) {
     if (confirm(`🚨 คำเตือน: คุณแน่ใจหรือไม่ที่จะแบน/ลบผู้ใช้งาน "${username}" ?\n(ผลงานทั้งหมดของผู้ใช้นี้อาจได้รับผลกระทบ)`)) {
-      this.http.delete(`http://localhost:3000/auth/users/${id}`).subscribe({
+      this.http.delete(`https://dpg-studio-backend.onrender.com/auth/users/${id}`).subscribe({
         next: () => {
           alert('🗑️ ลบผู้ใช้งานออกจากระบบสำเร็จ');
           this.fetchUsers(); // โหลดข้อมูลใหม่
