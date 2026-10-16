@@ -121,7 +121,8 @@
                 <p class="author-tag" *ngIf="project.location" style="color: #0ea5e9;">📍 จาก: {{ project.location }}</p>
               </div>
               
-              <div class="card-footer" *ngIf="myOwnedProjects.includes(project.id) || authService.isAdmin"> 
+              <!-- 🌟 แก้ไขตรงนี้: เปลี่ยนเงื่อนไขการแสดงปุ่มแก้ไข/ลบ ในการ์ดผลงาน -->
+              <div class="card-footer" *ngIf="canEditProject(project)"> 
                 <button class="btn-warning" (click)="editProjectFromCard(project, $event)">✏️ แก้ไข</button>
                 <button class="btn-danger" (click)="deleteProject(project.id, $event)">🗑️ ลบ</button>
               </div>
@@ -189,7 +190,8 @@
             <a [href]="selectedProject.documentUrl" target="_blank" download="document" class="btn-primary" style="display: inline-block; margin-top: 10px; text-decoration: none;">📄 ดาวน์โหลดเอกสาร</a>
           </div>
 
-          <div class="detail-actions" *ngIf="myOwnedProjects.includes(selectedProject.id) || authService.isAdmin">
+          <!-- 🌟 แก้ไขตรงนี้: เปลี่ยนเงื่อนไขการแสดงปุ่มแก้ไขผลงาน ในหน้ารายละเอียด (Detail View) -->
+          <div class="detail-actions" *ngIf="canEditProject(selectedProject)">
             <button class="btn-warning" (click)="editProject(selectedProject)">✏️ แก้ไขผลงาน</button>
           </div>
         </div>

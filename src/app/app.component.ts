@@ -501,4 +501,13 @@ export class AppComponent implements OnInit {
       alert('❌ เบราว์เซอร์ของคุณไม่รองรับการดึงตำแหน่ง');
     }
   }
+
+  // 🌟 ฟังก์ชันเช็คว่าผู้ใช้ปัจจุบันมีสิทธิ์แก้ไข/ลบ ผลงานนี้หรือไม่
+  canEditProject(project: any): boolean {
+    const currentUser = this.authService.currentUser.value;
+    if (!currentUser) return false;
+    
+    // ให้สิทธิ์แก้ได้ถ้า ID ตรงกับคนสร้าง หรือเป็น ADMIN
+    return currentUser.id === project.authorId || currentUser.role === 'ADMIN';
+  }
 }
