@@ -1,0 +1,396 @@
+<div class="theme-container" [class.dark-mode]="isDarkMode">
+  
+  <div class="portfolio-wrapper">
+    <header class="main-header">
+      <div class="logo" (click)="showForm = false; showDetail = false; showAdminDashboard = false" style="cursor: pointer;">
+        <div class="logo-icon">D</div>
+        <div>
+          <h1>DPG Studio</h1>
+          <p>Digital Portfolio Gallery</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn-theme-toggle" (click)="toggleTheme()" title="สลับโหมดกลางวัน/กลางคืน">
+          {{ isDarkMode ? '☀️ สว่าง' : '🌙 มืด' }}
+        </button>
+
+        <!-- 🌟 ส่วนแสดงชื่อคนล็อกอิน และปุ่มออกจากระบบ (เห็นเฉพาะตอนล็อกอินแล้ว) -->
+        <ng-container *ngIf="authService.currentUser.value as user">
+          <span style="margin-right: 15px; font-weight: bold; font-size: 14px;">
+            👤 {{ user.username }}
+          </span>
+          
+          <!-- 🌟 จุดที่ 1: เพิ่มปุ่มจัดการระบบสำหรับ Admin -->
+          <button class="btn-warning" *ngIf="authService.isAdmin" (click)="openAdminDashboard()" style="margin-right: 10px;">⚙️ จัดการผู้ใช้งาน</button>
+          
+          <button class="btn-danger" (click)="logout()">ออกจากระบบ</button>
+        </ng-container>
+
+        <!-- 🌟 ปุ่มเข้าสู่ระบบ (เห็นเฉพาะตอนยังไม่ล็อกอิน) -->
+        <button class="btn-outline" *ngIf="!authService.currentUser.value" (click)="openLoginModal()">เข้าสู่ระบบ</button>
+
+        <button class="btn-outline" *ngIf="showForm || showDetail || showAdminDashboard" (click)="showForm = false; showDetail = false; showAdminDashboard = false">← กลับแกลเลอรี</button>
+        
+        <!-- 🌟 ซ่อนปุ่มเพิ่มผลงาน ให้เห็นเฉพาะ Creator และ Admin -->
+        <button class="btn-primary" *ngIf="!showForm && !showDetail && !showAdminDashboard && authService.isCreator" (click)="openAddForm()">+ เพิ่มผลงานใหม่</button>
+      </div>
+    </header>
+
+    <!-- 🌟 จุดที่ 2: หน้าแกลเลอรีหลัก (ซ่อนเมื่อเปิดหน้า Admin) -->
+    <div *ngIf="!showForm && !showDetail && !showAdminDashboard">
+      <div class="hero-banner">
+        <div class="hero-content">
+          <span class="hero-subtitle">A HOME FOR YOUR BEST WORK</span>
+          <h2>ศูนย์รวมผลงาน<br>จากทุกคน</h2>
+          <p>รวบรวมไอเดีย โปรเจกต์ และงานสร้างสรรค์ไว้ในพื้นที่เดียว ค้นหา กรอง และจัดการผลงานของคุณได้ง่ายๆ</p>
+          
+          <div class="stats-row">
+            <div class="stat-box">
+              <span class="stat-label">ผลงานทั้งหมด</span>
+              <span class="stat-value">{{ projects.length }} ชิ้น</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">หมวดหมู่ทั้งหมด</span>
+              <span class="stat-value">{{ uniqueCategories.length }} หมวด</span>
+            </div>
+            
+            @for (cat of uniqueCategories; track cat.id) {
+              <div class="stat-box category-stat">
+                <span class="stat-label">📁 {{ cat.name }}</span>
+                <span class="stat-value">{{ getProjectCountByCategory(cat.id) }} ชิ้น</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery-section">
+        <div class="gallery-header">
+          <div>
+            <h3 class="section-title">แกลเลอรีผลงาน</h3>
+            <p class="section-subtitle">ค้นหาแรงบันดาลใจจากผลงานทั้งหมด</p>
+          </div>
+          
+          <div class="toolbar-box">
+            <!-- ช่องค้นหา (Search) -->
+            <div class="search-box">
+              <input type="text" [(ngModel)]="searchKeyword" placeholder="🔍 ค้นหาชื่อ หรือรายละเอียด...">
+            </div>
+
+            <!-- ตัวกรองหมวดหมู่ (Filter) -->
+            <div class="filter-box">
+              <select [(ngModel)]="selectedCategoryId">
+                <option value="all">แสดงทุกหมวดหมู่</option>
+                @for (cat of uniqueCategories; track cat.id) {
+                  <option [value]="cat.id">{{ cat.name }}</option>
+                }
+              </select>
+            </div>
+
+            <!-- ตัวเลือกจัดเรียง (Sort) -->
+            <div class="sort-box">
+              <select [(ngModel)]="sortBy">
+                <option value="newest">🕒 ใหม่ล่าสุด</option>
+                <option value="oldest">⏳ เก่าที่สุด</option>
+                <option value="title_asc">🔤 ชื่อ (ก - ฮ)</option>
+                <option value="title_desc">🔠 ชื่อ (ฮ - ก)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-layout">
+          @for (project of filteredProjects; track project.id) {
+            <div class="ui-card" (click)="viewDetail(project)">
+              <div class="card-image">
+                <img [src]="project.imageUrl || 'https://placehold.co/600x400/e2e8f0/475569?text=No+Image'" alt="Project Image">
+              </div>
+              <div class="card-body">
+                <div class="text-sm text-gray-500 mb-2">
+                  <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-semibold mr-2">
+                    {{ project.category?.name || 'ไม่มีหมวดหมู่' }}
+                  </span>
+                  <span class="text-xs">
+                    📅 {{ project.createdAt | date:'dd/MM/yyyy' }}
+                  </span>
+                </div>
+
+                <h3>{{ project.title }}</h3>
+                <p class="author-tag" style="margin-bottom: 2px;">👤 โพสต์โดย: {{ project.authorName || 'ไม่ระบุชื่อ' }}</p>
+                <!-- 🌟 แสดง Location ในการ์ด -->
+                <p class="author-tag" *ngIf="project.location" style="color: #0ea5e9;">📍 จาก: {{ project.location }}</p>
+              </div>
+              
+              <div class="card-footer" *ngIf="myOwnedProjects.includes(project.id) || authService.isAdmin"> 
+                <button class="btn-warning" (click)="editProjectFromCard(project, $event)">✏️ แก้ไข</button>
+                <button class="btn-danger" (click)="deleteProject(project.id, $event)">🗑️ ลบ</button>
+              </div>
+            </div>
+          } @empty {
+            <div class="empty-state">ไม่พบผลงานที่ค้นหาหรือในหมวดหมู่นี้!</div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- หน้า Detail ผลงานแบบเจาะลึก -->
+    <div class="detail-section" *ngIf="showDetail && selectedProject">
+      <div class="detail-card">
+        
+        <!-- 🌟 แทนที่ส่วน .detail-image เดิมด้วยระบบ Slider -->
+        <div style="width: 100%; border-radius: 12px; overflow: hidden; margin-bottom: 20px;">
+          <!-- รูปหลัก Slider -->
+          <div style="position: relative; width: 100%; height: 400px; background: #f1f5f9;">
+            <img [src]="currentDetailImages[currentSlideIndex]" style="width: 100%; height: 100%; object-fit: contain;">
+            
+            <!-- ปุ่มเปลี่ยนรูปซ้าย/ขวา -->
+            <button *ngIf="currentDetailImages.length > 1" (click)="prevSlide()" style="position: absolute; top: 50%; left: 10px; transform: translateY(-50%); background: rgba(0,0,0,0.6); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; z-index: 10;">❮</button>
+            <button *ngIf="currentDetailImages.length > 1" (click)="nextSlide()" style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); background: rgba(0,0,0,0.6); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; z-index: 10;">❯</button>
+            
+            <!-- ตัวบอกจำนวนรูป -->
+            <div *ngIf="currentDetailImages.length > 1" style="position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: white; padding: 4px 12px; border-radius: 15px; font-size: 14px; letter-spacing: 1px;">
+              {{ currentSlideIndex + 1 }} / {{ currentDetailImages.length }}
+            </div>
+          </div>
+
+          <!-- รูป Thumbnail เล็กๆ ด้านล่าง (กดเพื่อสลับหน้าได้) -->
+          <div *ngIf="currentDetailImages.length > 1" style="display: flex; gap: 10px; padding-top: 15px; overflow-x: auto;">
+             @for (img of currentDetailImages; track $index) {
+                <img [src]="img" (click)="currentSlideIndex = $index" 
+                     [style.border]="currentSlideIndex === $index ? '3px solid #2563eb' : '3px solid transparent'" 
+                     [style.opacity]="currentSlideIndex === $index ? 1 : 0.5"
+                     style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; cursor: pointer; transition: 0.2s; flex-shrink: 0;">
+             }
+          </div>
+        </div>
+
+        <div class="detail-info">
+          <span class="badge">{{ selectedProject.category?.name || 'ไม่มีหมวดหมู่' }}</span>
+          <h2 class="detail-title">{{ selectedProject.title }}</h2>
+          <div class="detail-meta">
+            <span>👤 โพสต์โดย: <strong>{{ selectedProject.authorName || 'ไม่ระบุชื่อ' }}</strong></span>
+            <span>📅 เมื่อ: {{ selectedProject.createdAt | date:'dd MMM yyyy' }}</span>
+            <!-- 🌟 แสดง Location ในหน้ารายละเอียด -->
+            <span *ngIf="selectedProject.location">📍 จาก: <strong>{{ selectedProject.location }}</strong></span>
+          </div>
+          <div class="detail-desc">
+            <h4>รายละเอียดผลงาน:</h4>
+            <p>{{ selectedProject.description }}</p>
+          </div>
+          
+          <div class="detail-media" *ngIf="selectedProject.videoUrl">
+            <h4 style="margin-top: 20px;">วิดีโอผลงาน:</h4>
+            <video *ngIf="selectedProject.videoUrl.startsWith('data:video')" [src]="selectedProject.videoUrl" controls style="width: 100%; border-radius: 12px; margin-top: 10px;"></video>
+            <a *ngIf="!selectedProject.videoUrl.startsWith('data:video')" [href]="selectedProject.videoUrl" target="_blank" class="btn-outline" style="display: inline-block; margin-top: 10px;">🎥 เปิดดูวิดีโอ (ลิงก์ภายนอก)</a>
+          </div>
+
+          <div class="detail-media" *ngIf="selectedProject.documentUrl">
+            <h4 style="margin-top: 20px;">เอกสารแนบ:</h4>
+            <a [href]="selectedProject.documentUrl" target="_blank" download="document" class="btn-primary" style="display: inline-block; margin-top: 10px; text-decoration: none;">📄 ดาวน์โหลดเอกสาร</a>
+          </div>
+
+          <div class="detail-actions" *ngIf="myOwnedProjects.includes(selectedProject.id) || authService.isAdmin">
+            <button class="btn-warning" (click)="editProject(selectedProject)">✏️ แก้ไขผลงาน</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- หน้าฟอร์มเพิ่ม/แก้ไขผลงาน -->
+    <div class="form-section" *ngIf="showForm">
+      <h2 class="form-title">{{ isEditMode ? '✏️ แก้ไขผลงาน' : '✨ เพิ่มผลงานใหม่' }}</h2>
+      <div class="form-card">
+        <div class="input-group full-width">
+          <label>ชื่อผลงาน *</label>
+          <input type="text" [(ngModel)]="newProject.title" placeholder="ตั้งชื่อโปรเจกต์ของคุณ">
+        </div>
+        <div class="form-row">
+          <div class="input-group">
+            <label>ID หมวดหมู่ *</label>
+            <input type="number" [(ngModel)]="newProject.categoryId" placeholder="เช่น 1 หรือ 2">
+            <small style="color: #64748b; font-size: 0.8rem; margin-top: 4px; display: block;">
+              (1: Graphic Design, 2: Video, 3: Photo, 4: Document)
+            </small>
+          </div>
+          <div class="input-group">
+            <label>ชื่อผู้โพสต์ (นามปากกา)</label>
+            
+            <!-- 🌟 ถ้าล็อกอินอยู่ ให้แสดงชื่อบัญชีผู้ใช้และล็อคช่องไว้ -->
+            <input *ngIf="authService.currentUser.value as user" 
+                   type="text" 
+                   [value]="user.username" 
+                   disabled 
+                   style="background: var(--hover-bg, #f1f5f9); cursor: not-allowed; font-weight: bold; opacity: 0.8;">
+                   
+            <!-- 🌟 ถ้ายังไม่ได้ล็อกอิน ให้พิมพ์ระบุเองได้ -->
+            <input *ngIf="!authService.currentUser.value" 
+                   type="text" 
+                   [(ngModel)]="newProject.authorName" 
+                   placeholder="เช่น John Doe">
+          </div>
+        </div>
+        
+        <!-- 🌟 ฟอร์ม Location สำหรับกดดึงพิกัด -->
+        <div class="input-group full-width" style="margin-top: 15px;">
+          <label>📍 ตำแหน่งที่โพสต์ (Location)</label>
+          <div style="display: flex; gap: 10px;">
+            <input type="text" [(ngModel)]="newProject.location" placeholder="เช่น กรุงเทพมหานคร, ประเทศไทย (หรือกดปุ่มเพื่อดึงอัตโนมัติ)" style="flex: 1;">
+            <button class="btn-outline" (click)="fetchLocation()">📍 ดึงตำแหน่งปัจจุบัน</button>
+          </div>
+        </div>
+
+        <div class="input-group full-width" style="margin-top: 15px;">
+          <label>คำอธิบาย *</label>
+          <textarea [(ngModel)]="newProject.description" placeholder="อธิบายผลงานของคุณสั้นๆ..." rows="4"></textarea>
+        </div>
+        
+        <div class="input-group full-width upload-row">
+          <label>ไฟล์แนบ (URL รูป/วิดีโอ/เอกสาร หรือ อัปโหลดจากเครื่อง)</label>
+          <div class="file-upload-wrapper">
+            <input type="text" [(ngModel)]="unifiedMediaUrl" placeholder="https://ลิงก์รูป หรือ youtube หรือ google drive">
+            <span class="or-text">หรือ</span>
+            <input type="file" accept="image/*,video/*,.pdf,.doc,.docx" (change)="onMediaSelected($event)" class="file-input">
+          </div>
+        </div>
+
+        <!-- 🌟 ฟอร์มอัปโหลดรูปภาพเพิ่มเติม (Gallery) แสดงเฉพาะเมื่อเลือกหมวดหมู่ 3 (Photo) -->
+        <div *ngIf="newProject.categoryId == 3" class="input-group full-width" style="margin-top: 15px; padding: 15px; background: var(--hover-bg, #f8fafc); border-radius: 8px; border: 1px dashed #cbd5e1;">
+          <label style="margin-bottom: 10px; color: #2563eb; font-weight: bold;">📸 โหมดรูปภาพ: เพิ่มรูปภาพแกลเลอรีเพิ่มเติม (เลือกพร้อมกันได้หลายรูป)</label>
+          <input type="file" accept="image/*" multiple (change)="onMultipleImagesSelected($event)" class="file-input" style="background: white;">
+          
+          <!-- พรีวิวรูปที่เลือก -->
+          <div style="display: flex; gap: 12px; margin-top: 15px; flex-wrap: wrap;" *ngIf="additionalImages.length > 0">
+            @for (img of additionalImages; track $index) {
+              <div style="position: relative; width: 100px; height: 100px; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <img [src]="img" style="width: 100%; height: 100%; object-fit: cover;">
+                <button (click)="removeAdditionalImage($index)" title="ลบรูปนี้" style="position: absolute; top: 4px; right: 4px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">✕</button>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-primary" (click)="saveProject()">{{ isEditMode ? 'บันทึกการแก้ไข' : 'บันทึกผลงาน' }}</button>
+          <button class="btn-outline" (click)="cancelForm()">ยกเลิก</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🌟 จุดที่ 3: หน้า Admin Dashboard (จัดการผู้ใช้งาน) -->
+    <div class="admin-section" *ngIf="showAdminDashboard">
+      <div class="gallery-header" style="margin-bottom: 20px;">
+        <div>
+          <h2 class="section-title">⚙️ ระบบจัดการผู้ใช้งาน (Admin Only)</h2>
+          <p class="section-subtitle">ตรวจสอบรายชื่อผู้ใช้งาน และจัดการระงับสิทธิ์บัญชี</p>
+        </div>
+        <button class="btn-outline" (click)="closeAdminDashboard()">← กลับแกลเลอรี</button>
+      </div>
+
+      <div class="form-card" style="padding: 20px; border-radius: 12px; background: var(--card-bg, #fff);">
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; text-align: left; min-width: 600px;">
+            <thead style="background-color: var(--hover-bg, #f8fafc); border-bottom: 2px solid #e2e8f0;">
+              <tr>
+                <th style="padding: 15px; color: var(--text-color);">ID</th>
+                <th style="padding: 15px; color: var(--text-color);">ชื่อผู้ใช้งาน (Username)</th>
+                <th style="padding: 15px; color: var(--text-color);">วันที่สมัคร</th>
+                <th style="padding: 15px; color: var(--text-color);">ระดับสิทธิ์ (Role)</th>
+                <th style="padding: 15px; color: var(--text-color); text-align: center;">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (u of usersList; track u.id) {
+                <tr style="border-bottom: 1px solid #e2e8f0; transition: background-color 0.2s;">
+                  <td style="padding: 15px; color: var(--text-color);">{{ u.id }}</td>
+                  <td style="padding: 15px; color: var(--text-color); font-weight: bold;">{{ u.username }}</td>
+                  <td style="padding: 15px; color: var(--text-color);">{{ u.createdAt | date:'dd MMM yyyy' }}</td>
+                  <td style="padding: 15px;">
+                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-semibold" 
+                          [style.background-color]="u.role === 'ADMIN' ? '#fee2e2' : '#e0f2fe'"
+                          [style.color]="u.role === 'ADMIN' ? '#991b1b' : '#0369a1'">
+                      {{ u.role }}
+                    </span>
+                  </td>
+                  <td style="padding: 15px; text-align: center;">
+                    <!-- ห้าม Admin ลบตัวเอง หรือ ลบ Admin ด้วยกันเอง (กันพลาด) -->
+                    <button class="btn-danger" style="padding: 6px 12px; font-size: 0.85rem;" 
+                            *ngIf="u.role !== 'ADMIN'" 
+                            (click)="deleteUserAcc(u.id, u.username)">
+                      🚫 แบน / ลบบัญชี
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5" style="text-align: center; padding: 30px; color: var(--text-color);">
+                    ไม่มีข้อมูลผู้ใช้งานในระบบ
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 🌟 Popup เข้าสู่ระบบ / สมัครสมาชิก -->
+  <div *ngIf="showLoginModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 9999;">
+    <div class="form-card" style="background: var(--card-bg, #fff); padding: 30px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+      
+      <!-- หัวข้อปรับตาม Mode -->
+      <h2 style="margin-top: 0; margin-bottom: 20px; color: var(--text-color);">
+        {{ isRegisterMode ? '✨ สมัครสมาชิกใหม่' : '🔑 เข้าสู่ระบบ (DPG Studio)' }}
+      </h2>
+      
+      <!-- ---------------- ฟอร์ม LOGIN ---------------- -->
+      <ng-container *ngIf="!isRegisterMode">
+        <div class="input-group full-width">
+          <label>ชื่อผู้ใช้งาน (Username)</label>
+          <input type="text" [(ngModel)]="loginData.username" placeholder="กรอกชื่อผู้ใช้งาน">
+        </div>
+        
+        <div class="input-group full-width" style="margin-top: 15px;">
+          <label>รหัสผ่าน (Password)</label>
+          <input type="password" [(ngModel)]="loginData.password" placeholder="กรอกรหัสผ่าน">
+        </div>
+        
+        <div class="form-actions" style="margin-top: 25px; display: flex; gap: 10px; justify-content: space-between; align-items: center;">
+          <a href="javascript:void(0)" (click)="toggleAuthMode()" style="font-size: 0.85rem; color: #2563eb; text-decoration: underline;">
+            ยังไม่มีบัญชี? สมัครสมาชิก
+          </a>
+          <div>
+            <button class="btn-outline" (click)="closeLoginModal()" style="margin-right: 5px;">ยกเลิก</button>
+            <button class="btn-primary" (click)="login()">เข้าสู่ระบบ</button>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- ---------------- ฟอร์ม REGISTER ---------------- -->
+      <ng-container *ngIf="isRegisterMode">
+        <div class="input-group full-width">
+          <label>ชื่อผู้ใช้งานที่ต้องการ *</label>
+          <input type="text" [(ngModel)]="registerData.username" placeholder="ตั้งชื่อผู้ใช้งาน (ห้ามมีอักขระพิเศษ)">
+        </div>
+        
+        <div class="input-group full-width" style="margin-top: 15px;">
+          <label>รหัสผ่าน *</label>
+          <input type="password" [(ngModel)]="registerData.password" placeholder="พิมพ์เล็ก, พิมพ์ใหญ่, อักขระพิเศษ, 8 ตัวขึ้นไป">
+        </div>
+        
+        <div class="form-actions" style="margin-top: 25px; display: flex; gap: 10px; justify-content: space-between; align-items: center;">
+          <a href="javascript:void(0)" (click)="toggleAuthMode()" style="font-size: 0.85rem; color: #2563eb; text-decoration: underline;">
+            มีบัญชีอยู่แล้ว? เข้าสู่ระบบ
+          </a>
+          <div>
+            <button class="btn-outline" (click)="closeLoginModal()" style="margin-right: 5px;">ยกเลิก</button>
+            <button class="btn-primary" (click)="register()">สมัครสมาชิก</button>
+          </div>
+        </div>
+      </ng-container>
+
+    </div>
+  </div>
+
+</div>

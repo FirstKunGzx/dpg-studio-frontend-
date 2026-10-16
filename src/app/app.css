@@ -1,0 +1,274 @@
+/* =========================================
+   🌟 ล้างขอบขาวเริ่มต้นของหน้าจอ (Global Body Reset)
+========================================= */
+::ng-deep body {
+  margin: 0 !important;
+  padding: 0 !important;
+  background-color: #f8fafc;
+  transition: background-color 0.3s ease;
+}
+
+::ng-deep body:has(.theme-container.dark-mode) {
+  background-color: #0f172a;
+}
+
+:host {
+  display: block;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* =========================================
+   🌟 Theme Container (กล่องครอบเต็มจอ)
+========================================= */
+.theme-container {
+  min-height: 100vh;
+  background-color: #f8fafc;
+  color: #334155;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  padding: 1px 0;
+}
+
+.theme-container.dark-mode {
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+
+/* =========================================
+   Layout ปกติ
+========================================= */
+.portfolio-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Header */
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0 30px 0;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: opacity 0.2s;
+}
+.logo:hover { opacity: 0.8; }
+
+.logo-icon {
+  background: #6366f1;
+  color: white;
+  width: 45px;
+  height: 45px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+.logo h1 { margin: 0; font-size: 1.2rem; color: inherit; }
+.logo p { margin: 0; font-size: 0.8rem; color: #64748b; }
+
+/* Hero Banner */
+.hero-banner {
+  background-color: #1e1b4b; 
+  border-radius: 16px; 
+  padding: 60px 50px;
+  color: white;
+  margin-bottom: 40px;
+  box-shadow: 0 20px 40px rgba(30, 27, 75, 0.15);
+}
+
+.hero-subtitle {
+  color: #a5b4fc;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.hero-banner h2 { font-size: 3.2rem; margin: 15px 0; line-height: 1.2; }
+.hero-banner p { color: #c7d2fe; max-width: 600px; line-height: 1.6; font-size: 1.1rem; margin-bottom: 40px; }
+
+/* โซนกล่องสถิติ */
+.stats-row {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-top: 30px;
+}
+
+.stat-box {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 15px 25px;
+  border-radius: 16px; 
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(255,255,255,0.1);
+  min-width: 120px;
+}
+
+.category-stat {
+  background: rgba(99, 102, 241, 0.2); 
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.stat-label { font-size: 0.85rem; color: #a5b4fc; }
+.stat-value { font-size: 1.8rem; font-weight: bold; color: white; margin-top: 5px; }
+
+/* Buttons */
+.btn-primary { background-color: #6366f1; color: white; padding: 12px 24px; border: none; border-radius: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.btn-primary:hover { background-color: #4f46e5; }
+.btn-outline { background-color: transparent; color: #6366f1; padding: 12px 24px; border: 1px solid #c7d2fe; border-radius: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.btn-outline:hover { background-color: #f5f3ff; }
+
+/* Form Section */
+.form-section { max-width: 800px; margin: 0 auto 60px auto; }
+.form-title { font-size: 1.8rem; color: inherit; margin-bottom: 24px; }
+.form-card { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; }
+.form-row { display: flex; gap: 20px; margin-bottom: 24px; }
+.input-group { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.full-width { margin-bottom: 24px; }
+
+label { font-weight: 700; font-size: 0.95rem; color: inherit; }
+input, textarea, select {
+  padding: 14px 16px; border: 1px solid #cbd5e1; border-radius: 16px; outline: none; font-family: inherit; transition: border-color 0.2s; background-color: #f8fafc; color: #334155;
+}
+input:focus, textarea:focus, select:focus { border-color: #6366f1; }
+
+.file-upload-wrapper { display: flex; align-items: center; gap: 15px; }
+.file-upload-wrapper input[type="text"] { flex: 1; }
+.or-text { color: #94a3b8; font-size: 0.9rem; font-weight: 600; }
+.file-input { border: none; padding: 0; background-color: transparent;}
+.file-input::file-selector-button {
+  background-color: #f1f5f9; border: 1px solid #cbd5e1; padding: 12px 20px; border-radius: 16px; color: #334155; font-weight: 600; cursor: pointer; transition: background 0.2s;
+}
+.file-input::file-selector-button:hover { background-color: #e2e8f0; }
+.form-actions { display: flex; gap: 12px; margin-top: 40px; }
+
+/* Gallery Section & Toolbar (Search, Filter, Sort) */
+.gallery-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; flex-wrap: wrap; gap: 20px; }
+.section-title { font-size: 1.5rem; color: inherit; margin: 0 0 5px 0; font-weight: 700; }
+.section-subtitle { color: #64748b; margin: 0; font-size: 1rem; }
+
+.toolbar-box {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.search-box input {
+  padding: 10px 16px;
+  border-radius: 16px;
+  border: 1px solid #cbd5e1;
+  font-size: 0.95rem;
+  outline: none;
+  width: 220px;
+  background-color: #f8fafc;
+  color: #334155;
+  transition: all 0.2s;
+}
+
+.search-box input:focus {
+  border-color: #6366f1;
+  background-color: white;
+}
+
+.filter-box select,
+.sort-box select {
+  padding: 10px 16px;
+  border-radius: 16px;
+  border: 1px solid #cbd5e1;
+  font-weight: 600;
+  cursor: pointer;
+  background-color: #f8fafc;
+  color: #334155;
+  outline: none;
+}
+
+.grid-layout { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; align-items: stretch; }
+.ui-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; flex-direction: column; border: 1px solid #f1f5f9; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; height: 100%; }
+.ui-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+.card-image { width: 100%; height: 220px; flex-shrink: 0; overflow: hidden; }
+.card-image img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
+.card-body { padding: 24px; flex-grow: 1; display: flex; flex-direction: column; }
+.badge { align-self: flex-start; background-color: #e0e7ff; color: #4f46e5; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; margin-bottom: 12px; }
+.card-body h3 { margin: 0 0 5px 0; font-size: 1.3rem; color: inherit; }
+.author-tag { font-size: 0.85rem; color: #94a3b8; margin: 0 0 10px 0; font-weight: 500; }
+.card-footer { padding: 16px 24px; border-top: 1px solid #f8fafc; background-color: #ffffff; display: flex; gap: 10px; margin-top: auto; }
+.card-footer button { flex: 1; padding: 10px; border-radius: 16px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
+.btn-warning { background-color: #f8fafc; color: #3b82f6; border: 1px solid #bfdbfe; }
+.btn-warning:hover { background-color: #eff6ff; }
+.btn-danger { background-color: #fef2f2; color: #ef4444; border: 1px solid #fecaca; }
+.btn-danger:hover { background-color: #fee2e2; }
+.empty-state { grid-column: 1 / -1; text-align: center; padding: 60px; color: #64748b; background: white; border-radius: 16px; border: 2px dashed #cbd5e1; font-size: 1.1rem; }
+
+/* Detail Section */
+.detail-section { max-width: 900px; margin: 0 auto; padding-bottom: 60px;}
+.detail-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+.detail-image { background-color: #f1f5f9; border-bottom: 1px solid #e2e8f0; text-align: center; padding: 20px 0; }
+.detail-image img { max-width: 100%; height: auto; max-height: 80vh; object-fit: contain; display: block; margin: 0 auto; }
+.detail-info { padding: 40px; }
+.detail-title { font-size: 2.2rem; color: inherit; margin: 10px 0; }
+.detail-meta { display: flex; gap: 20px; color: #64748b; font-size: 0.95rem; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #f1f5f9; }
+.detail-desc h4 { color: inherit; margin-bottom: 10px; }
+.detail-desc p { color: inherit; line-height: 1.8; font-size: 1.05rem; }
+.detail-actions { margin-top: 30px; }
+.detail-actions button { padding: 12px 24px; font-size: 1rem; border-radius: 16px; }
+
+/* ปุ่มสลับธีม */
+.btn-theme-toggle { background: transparent; border: 1px solid #cbd5e1; color: inherit; padding: 8px 14px; border-radius: 16px; cursor: pointer; font-weight: 600; margin-right: 12px; transition: all 0.3s; }
+.btn-theme-toggle:hover { background: rgba(0,0,0,0.05); }
+
+/* =========================================
+   🌙 Dark Theme CSS
+========================================= */
+.theme-container.dark-mode .main-header,
+.theme-container.dark-mode .hero-banner { background-color: #1e293b; border-bottom: 1px solid #334155; }
+
+.theme-container.dark-mode .ui-card,
+.theme-container.dark-mode .detail-card,
+.theme-container.dark-mode .form-card,
+.theme-container.dark-mode .stat-box { background-color: #1e293b; border: 1px solid #334155; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4); }
+
+.theme-container.dark-mode .stat-label { color: #f8fafc; }
+.theme-container.dark-mode .stat-value { color: #ffffff; text-shadow: 0px 2px 4px rgba(0,0,0,0.3); }
+
+.theme-container.dark-mode .detail-image { background-color: #0f172a; border-bottom: 1px solid #334155; }
+.theme-container.dark-mode .detail-meta { border-bottom: 1px solid #334155; }
+.theme-container.dark-mode .empty-state { background-color: #1e293b; border-color: #475569; }
+
+/* ช่อง Input และ Toolbar ในโหมดกลางคืน */
+.theme-container.dark-mode input,
+.theme-container.dark-mode textarea,
+.theme-container.dark-mode select,
+.theme-container.dark-mode .search-box input,
+.theme-container.dark-mode .filter-box select,
+.theme-container.dark-mode .sort-box select { 
+  background-color: #0f172a; 
+  color: #f8fafc; 
+  border-color: #475569; 
+}
+.theme-container.dark-mode input::placeholder,
+.theme-container.dark-mode textarea::placeholder,
+.theme-container.dark-mode .search-box input::placeholder { color: #64748b; }
+
+.theme-container.dark-mode .file-input::file-selector-button { background-color: #1e293b; border-color: #475569; color: #f8fafc; }
+.theme-container.dark-mode .file-input::file-selector-button:hover { background-color: #334155; }
+
+/* ปุ่มในโหมดกลางคืน */
+.theme-container.dark-mode .btn-outline { border-color: #475569; color: #f8fafc; }
+.theme-container.dark-mode .btn-outline:hover { background-color: #334155; }
+.theme-container.dark-mode .btn-theme-toggle { border-color: #475569; color: #f8fafc; }
+.theme-container.dark-mode .btn-theme-toggle:hover { background: rgba(255,255,255,0.1); }
+.theme-container.dark-mode .card-footer { background-color: #1e293b; border-top: 1px solid #334155; }
+.theme-container.dark-mode .btn-warning { background-color: #0f172a; border-color: #3b82f6; color: #60a5fa; }
+.theme-container.dark-mode .btn-warning:hover { background-color: #334155; }
+.theme-container.dark-mode .btn-danger { background-color: #0f172a; border-color: #ef4444; color: #f87171; }
+.theme-container.dark-mode .btn-danger:hover { background-color: #334155; }
